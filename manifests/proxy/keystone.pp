@@ -19,6 +19,7 @@
 
 class swift::proxy::keystone(
   $operator_roles      = ['admin', 'SwiftOperator'],
+  $reseller_admin_role = 'ResellerAdmin'
   $is_admin            = true
 ) {
 

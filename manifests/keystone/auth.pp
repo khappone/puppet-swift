@@ -34,6 +34,7 @@ class swift::keystone::auth(
   $internal_address       = undef,
   $configure_endpoint     = true,
   $configure_s3_endpoint  = true,
+  $configure_user         = true,
   $endpoint_prefix        = 'AUTH',
 ) {
 
@@ -53,16 +54,23 @@ class swift::keystone::auth(
     $real_internal_address = $internal_address
   }
 
-  keystone_user { $auth_name:
-    ensure   => present,
-    password => $password,
-    email    => $email,
-    tenant   => $tenant,
-  }
-  keystone_user_role { "${auth_name}@${tenant}":
-    ensure  => present,
-    roles   => 'admin',
-    require => Keystone_user[$auth_name]
+  if $configure_user {
+    keystone_user { $auth_name:
+      ensure   => present,
+      password => $password,
+      email    => $email,
+      tenant   => $tenant,
+    }
+    keystone_user_role { "${auth_name}@${tenant}":
+      ensure  => present,
+      roles   => 'admin',
+      require => Keystone_user[$auth_name]
+    }
+
+    if $operator_roles {
+      #Roles like "admin" may be defined elsewhere, so use ensure_resource
+      ensure_resource('keystone_role', $operator_roles, { 'ensure' => 'present' })
+    }
   }
 
   keystone_service { $auth_name:
@@ -95,9 +103,5 @@ class swift::keystone::auth(
     }
   }
 
-  if $operator_roles {
-    #Roles like "admin" may be defined elsewhere, so use ensure_resource
-    ensure_resource('keystone_role', $operator_roles, { 'ensure' => 'present' })
-  }
 
 }

@@ -2,4 +2,5 @@
 [filter:keystone]
 use = egg:swift#keystoneauth
 operator_roles = <%= @operator_roles.to_a.join(', ') %>
+reseller_admin_role = <%= @reseller_admin_role %>
 is_admin = <%= @is_admin %>
